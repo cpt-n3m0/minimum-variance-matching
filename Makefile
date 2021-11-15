@@ -1,4 +1,4 @@
-OBJ = heap.o  mvm.o dijkstra.o graph.o
+OBJ = heap.o  mvm.o graph.o
 COMP = gcc -fPIC -g -c -Wall
 
 mvm.so: $(OBJ)
@@ -11,9 +11,6 @@ mvm.o: mvm.c heap.h mvm.h
 	$(COMP) mvm.c
 heap.o:  heap.c heap.h mvm.h
 	$(COMP) heap.c
-dijkstra.o:  dijkstra.c mvm.h dijkstra.h
-	$(COMP) dijkstra.c
-
 graph.o:  graph.c graph.h
 	$(COMP) graph.c
 .PHONY: clean
