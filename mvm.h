@@ -10,8 +10,7 @@ typedef struct match_t {
 float ** create_matrix (int r, int c, float default_val);
 float ** get_dist_matrix(float* query, int lenq, float* target, int lent);
 void print_matrix(float** dist_matrix, int r, int c);
-node_t create_node(int i, int j, float weight);
-match_t mvm(float* query, int lenq, float* target, int lent);
+match_t mvm(float* query, int lenq, float* target, int lent, int elasticity);
 float* gen_timeseries(int len, float min, float max);
 
 #define mvmimported
