@@ -30,4 +30,4 @@ def mvm(query, target, elasticity=50):
 
 
 
-mvm(q, t)
+# mvm(q, t)

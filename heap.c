@@ -9,12 +9,11 @@ heap* create_heap(int max_size){
   h->max_size = max_size;
   h->size = 0;
   h->content = (heap_element*)malloc(sizeof(heap_element) * max_size);
-  ALLOC_ERROR(h->content, "failed to allocate");
+  ALLOC_ERROR(h->content, "failed to allocate heap content array");
   return h;
 }
 
 void dump_heap(heap* h){
-
   for (int i =0; i < h->size ; i++)
     printf("%f ", h->content[i].priority);
   printf("\n");
@@ -53,13 +52,9 @@ void bubble_down(heap* heap){
       lowest = rightp < leftp ? rightc : leftc;
     }
     else if (rightc < heap->size)
-    {
       lowest = rightc;
-    }
     else if (leftc < heap->size)
-    {
       lowest = leftc;
-    }
     else
       break;
 
@@ -80,11 +75,14 @@ node_t pop(heap* heap){
     printf("ERROR: heap is empty");
     exit(-1);
   }
+
   heap_element min_e = heap->content[0];
   heap->size -= 1;
   heap->content[0] = heap->content[heap->size] ;
-  if (heap->size > 0)
+
+  if (heap->size > 1)
     bubble_down(heap);
+
   return min_e.node;
 
 }
@@ -95,13 +93,13 @@ void push(heap* heap, node_t node, int priority){
     return;
   }
 
-
   heap_element new_elem;
   new_elem.node = node;
   new_elem.priority = priority;
 
   heap->content[heap->size] = new_elem;
   heap->size += 1;
+
   if (heap->size > 1)
     bubble_up(heap);
 

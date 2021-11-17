@@ -66,11 +66,7 @@ path_t build_path(node_t ** prev_node_matrix, float** dist_matrix, node_t start,
 
   while(1){
     path.steps = realloc(path.steps, sizeof(node_t) * (path.num_steps + 1));
-    if(path.steps == NULL)
-    {
-      printf("ERROR: failed to increase step array size");
-      exit(-1);
-    }
+    ALLOC_ERROR(path.steps, "failed to increase step array size")
     path.distance += cur.weight;
     path.steps[path.num_steps] = cur;
     path.num_steps += 1;
@@ -82,22 +78,37 @@ path_t build_path(node_t ** prev_node_matrix, float** dist_matrix, node_t start,
   return path;
 }
 
+node_t get_goal(float** dists, float** costs, int lenq, int lent){
+  int goal_col = 0;
+  int best_dist = INF;
+  for (int i = lenq; i < lent; i++)
+  {
+    if(dists[lenq-1][i] == INF)
+      continue;
+    if(dists[lenq-1][i] < best_dist)
+    {
+      best_dist = dists[lenq-1][i];
+      goal_col = i;
+    }
+  }
+  return create_node(lenq-1, goal_col, costs[lenq - 1][goal_col]);
+}
 
-//Dijkstra implementation
-path_t get_shortest_path(node_t start, node_t goal, float ** dist_matrix, int lenq, int lent, int elasticity){
+//Find shortest path using Dijkstra's algorithm
+path_t get_shortest_path(node_t start, float ** cost_matrix, int lenq, int lent, int elasticity){
   float** dists = create_matrix(lenq, lent, INF);
   float** visited = create_matrix(lenq, lent, 0);
   node_t** prev_node_matrix = create_node_matrix(lenq, lent);
-  heap* to_visit = create_heap(lent* lenq);
+  heap* to_visit = create_heap(lent * lent * lenq);
 
   dists[start.i][start.j] = start.weight;
   push(to_visit, start, start.weight);
 
   while(to_visit->size){
     node_t cur = pop(to_visit);
-    node_t* neighbours =get_neighbours(cur, dist_matrix, lenq, lent, elasticity);
+    node_t* neighbours =get_neighbours(cur, cost_matrix, lenq, lent, elasticity);
     int num_neighbours = get_num_neighbours(cur, lent);
-    for(int i = 0; neighbours != NULL && i < num_neighbours && i <= elasticity; i++)
+    for(int i = 0; neighbours != NULL && i < num_neighbours && i < elasticity; i++)
     {
       node_t  nbr = neighbours[i];
       if(visited[nbr.i][nbr.j] != 0)
@@ -110,11 +121,11 @@ path_t get_shortest_path(node_t start, node_t goal, float ** dist_matrix, int le
         prev_node_matrix[nbr.i][nbr.j] = cur;
         push(to_visit, nbr, dists[nbr.i][nbr.j]);
       }
-      if(nodecmp(nbr, goal))
-        break;
     }
     visited[cur.i][cur.j] = 1;
   }
+
+  node_t goal = get_goal(dists, cost_matrix, lenq, lent);
 
   return build_path(prev_node_matrix, dists, start, goal);
 
